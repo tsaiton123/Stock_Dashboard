@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Stock Dashboard</title>
+    <style>
+        body {
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            padding: 20px;
+            background-color: #1f1f1f;
+            margin: 0;
+            border-bottom: 1px solid #333;
+        }
+        form {
+            text-align: center;
+            padding: 20px;
+            background-color: #1f1f1f;
+            border-bottom: 1px solid #333;
+        }
+        form input, form button {
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+        }
+        form input {
+            width: 200px;
+        }
+        form button {
+            background-color: #6200ea;
+            color: white;
+            cursor: pointer;
+        }
+        .stock-info {
+            background-color: #1f1f1f;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+        .stock-info h2 {
+            color: #bb86fc;
+        }
+        .stock-info p {
+            color: #03dac6;
+        }
+        .delete-button {
+            background-color: #cf6679;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .messages {
+            text-align: center;
+            padding: 10px;
+        }
+        .messages li {
+            list-style: none;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 5px;
+            background-color: #333;
+        }
+        a {
+            color: #bb86fc;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                const messages = document.querySelectorAll('.messages li');
+                messages.forEach(function(message) {
+                    message.style.display = 'none';
+                });
+            }, 5000); // 5000 milliseconds = 5 seconds
+        });
+    </script>
+</head>
+<body>
+    <h1>Stock Dashboard</h1>
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Add Stock</button>
+    </form>
+
+    <div>
+        {% for stock in stock_data %}
+            <div class="stock-info">
+                <h2>{{ stock.ticker }}</h2>
+                <p>Price: {{ stock.price }}</p>
+                <p>Sentiment Score: {{ stock.sentiment_score }}</p>
+                <h3>News Articles</h3>
+                <ul>
+                    {% for article in stock.news %}
+                        <li>
+                            <a href="{{ article.url }}">{{ article.title }}</a>
+                            <p>{{ article.description }}</p>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <form method="post" action="{% url 'delete_stock' stock.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="delete-button">Delete</button>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>
